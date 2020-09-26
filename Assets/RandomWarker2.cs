@@ -32,6 +32,14 @@ public class RandomWarker2 : MonoBehaviour
         }
     }
 
+    void OnParticleCollision(GameObject obj)
+    {
+        if(obj.tag == gameObject.tag)
+        {
+            ElementFusion(obj);
+        }
+    }
+
     private void ElementFusion(GameObject target)
     {
         ElementParameters targetScript = target.GetComponent<ElementParameters>();
@@ -53,14 +61,14 @@ public class RandomWarker2 : MonoBehaviour
         if (elementLevel > targetLevel)
         {
             Destroy(target);
-            GetComponent<Renderer>().material.color = Color.blue;
+//            GetComponent<Renderer>().material.color = Color.blue;
             selfScript.IncrementElementLevel();
             transform.localScale *= 1.2f;
         }
         else if (elementLevel < targetLevel)
         {
             Destroy(gameObject);
-            target.GetComponent<Renderer>().material.color = Color.blue;
+//            target.GetComponent<Renderer>().material.color = Color.blue;
             targetScript.IncrementElementLevel();
             target.transform.localScale *= 1.2f;
         }
@@ -69,7 +77,7 @@ public class RandomWarker2 : MonoBehaviour
             if (int.Parse(gameObject.name) > int.Parse(target.name))
             {
                 Destroy(gameObject);
-                target.GetComponent<Renderer>().material.color = Color.red;
+//                target.GetComponent<Renderer>().material.color = Color.red;
                 targetScript.IncrementElementLevel();
                 target.transform.localScale *= 1.2f;
             }
@@ -77,13 +85,12 @@ public class RandomWarker2 : MonoBehaviour
             else
             {
                 Destroy(target);
-                GetComponent<Renderer>().material.color = Color.red;
+//                GetComponent<Renderer>().material.color = Color.red;
                 gameObject.GetComponent<ElementParameters>().IncrementElementLevel();
                 transform.localScale *= 1.2f;
             }
         }
         targetScript.hit();
         selfScript.hit();
-
     }
 }
