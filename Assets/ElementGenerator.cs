@@ -19,13 +19,13 @@ public class ElementGenerator : MonoBehaviour
     //X座標の最大値
     public float xMaxPosition = 10f;
     //Y座標の最小値
-    public float yMinPosition = 0f;
+    public float yMinPosition = 1f;
     //Y座標の最大値
     public float yMaxPosition = 10f;
     //Z座標の最小値
-    public float zMinPosition = 10f;
+    public float zMinPosition = -10f;
     //Z座標の最大値
-    public float zMaxPosition = 20f;
+    public float zMaxPosition = 10f;
 
     //element番号
     private int i=0;
@@ -43,9 +43,9 @@ public class ElementGenerator : MonoBehaviour
         if (time > interval)
         {
             GameObject element = Instantiate(elementPrefab);
-//            element.name = "element" + i;
-//            element.tag = "Element";
-//            i++;
+            element.name = i.ToString();
+            element.tag = "Element";
+            i++;
             elementPrefab.transform.position = GetRandomPosition();
             time = 0f;
 
@@ -68,4 +68,5 @@ public class ElementGenerator : MonoBehaviour
         //Vector3型のPositionを返す
         return new Vector3(x, y, z);
     }
+
 }

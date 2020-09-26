@@ -4,19 +4,10 @@ using UnityEngine;
 
 public class RandomWarker2 : MonoBehaviour
 {
-    //　歩くスピード
     [SerializeField]
-    private float walkSpeed = 3.0f;
+    public string target_tag;
 
     Rigidbody rb;
-
-    //GameObject[] elements;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
 
     // Update is called once per frame
     void FixedUpdate()
@@ -29,13 +20,70 @@ public class RandomWarker2 : MonoBehaviour
         float x = Random.Range(-3f, 3f);
         float z = Random.Range(-3f, 3f);
         rb.AddForce(x, 0, z);
-/*
-        elements = GameObject.FindGameObjectsWithTag("Element");
-        for(int i =0; i < elements.Length; i++)
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+
+        if (collision.gameObject.tag == target_tag)
         {
-            elements[i].transform.position += transform.forward * walkSpeed * Time.deltaTime;
+            GameObject target = collision.gameObject;
+            ElementFusion(target);
         }
-*/
+    }
+
+    private void ElementFusion(GameObject target)
+    {
+        ElementParameters targetScript = target.GetComponent<ElementParameters>();
+        ElementParameters selfScript = gameObject.GetComponent<ElementParameters>();
+
+        // 衝突判定が同時に実行されるため、片方のスクリプトが実行された時点で
+        // 両方の衝突判定フラグをTrueにし、片方のフラグがTrueの場合は
+        // 衝突判定実施後であるため処理をスキップする
+        if (selfScript.isHitted || targetScript.isHitted)
+        {
+            selfScript.isHitted = false;
+            targetScript.isHitted = false;
+            return;
+        }
+
+        // エレメントレベルが大きいものを残す
+        int targetLevel = targetScript.GetElementLevel();
+        int elementLevel = selfScript.GetElementLevel();
+        if (elementLevel > targetLevel)
+        {
+            Destroy(target);
+            GetComponent<Renderer>().material.color = Color.blue;
+            selfScript.IncrementElementLevel();
+            transform.localScale *= 1.2f;
+        }
+        else if (elementLevel < targetLevel)
+        {
+            Destroy(gameObject);
+            target.GetComponent<Renderer>().material.color = Color.blue;
+            targetScript.IncrementElementLevel();
+            target.transform.localScale *= 1.2f;
+        }
+        else if (targetLevel == elementLevel)
+        {
+            if (int.Parse(gameObject.name) > int.Parse(target.name))
+            {
+                Destroy(gameObject);
+                target.GetComponent<Renderer>().material.color = Color.red;
+                targetScript.IncrementElementLevel();
+                target.transform.localScale *= 1.2f;
+            }
+
+            else
+            {
+                Destroy(target);
+                GetComponent<Renderer>().material.color = Color.red;
+                gameObject.GetComponent<ElementParameters>().IncrementElementLevel();
+                transform.localScale *= 1.2f;
+            }
+        }
+        targetScript.hit();
+        selfScript.hit();
 
     }
 }
