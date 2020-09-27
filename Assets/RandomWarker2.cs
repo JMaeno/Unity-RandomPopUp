@@ -9,10 +9,23 @@ public class RandomWarker2 : MonoBehaviour
 
     Rigidbody rb;
 
+    private ParticleSystem particle;
+//    private ParticleSystem.MainModule particleMain;
+    private ParticleSystem.EmissionModule particleEmission;
+
+    public float growSpeed = 1.2f;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        particle = GetComponent<ParticleSystem>();
+//        particleMain = particle.main;
+        particleEmission = particle.emission;
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
-        rb = GetComponent<Rigidbody>();
         //方向転換（Y軸ランダム回転）
         float angle = Random.Range(-45f, 45f);
         transform.Rotate(0, angle, 0);
@@ -32,6 +45,7 @@ public class RandomWarker2 : MonoBehaviour
         }
     }
 
+/*
     void OnParticleCollision(GameObject obj)
     {
         if(obj.tag == gameObject.tag)
@@ -39,7 +53,7 @@ public class RandomWarker2 : MonoBehaviour
             ElementFusion(obj);
         }
     }
-
+*/
     private void ElementFusion(GameObject target)
     {
         ElementParameters targetScript = target.GetComponent<ElementParameters>();
@@ -58,39 +72,44 @@ public class RandomWarker2 : MonoBehaviour
         // エレメントレベルが大きいものを残す
         int targetLevel = targetScript.GetElementLevel();
         int elementLevel = selfScript.GetElementLevel();
-        if (elementLevel > targetLevel)
+        bool isTargetDestroy;
+        if (elementLevel != targetLevel)
+        {
+            isTargetDestroy = elementLevel > targetLevel;
+            FusinoAndDestroy(target, isTargetDestroy);
+            return;
+        }
+        isTargetDestroy = int.Parse(gameObject.name) < int.Parse(target.name);
+        FusinoAndDestroy(target, isTargetDestroy);
+        return;
+    }
+
+    private void FusinoAndDestroy(GameObject target, bool isTargetDestroy)
+    {
+        ElementParameters targetScript = target.GetComponent<ElementParameters>();
+        ElementParameters selfScript = gameObject.GetComponent<ElementParameters>();
+        int targetLevel = targetScript.GetElementLevel();
+        int elementLevel = selfScript.GetElementLevel();
+        if (isTargetDestroy)
         {
             Destroy(target);
-//            GetComponent<Renderer>().material.color = Color.blue;
-            selfScript.IncrementElementLevel();
-            transform.localScale *= 1.2f;
+            gameObject.GetComponent<ElementParameters>().IncrementElementLevel();
+            //transform.localScale *= 1.2f;
+            particleEmission.rateOverTime = 2.0f * particleEmission.rateOverTime.constant;
+            targetScript.hit();
+            selfScript.hit();
+            return;
         }
-        else if (elementLevel < targetLevel)
-        {
-            Destroy(gameObject);
-//            target.GetComponent<Renderer>().material.color = Color.blue;
-            targetScript.IncrementElementLevel();
-            target.transform.localScale *= 1.2f;
-        }
-        else if (targetLevel == elementLevel)
-        {
-            if (int.Parse(gameObject.name) > int.Parse(target.name))
-            {
-                Destroy(gameObject);
-//                target.GetComponent<Renderer>().material.color = Color.red;
-                targetScript.IncrementElementLevel();
-                target.transform.localScale *= 1.2f;
-            }
-
-            else
-            {
-                Destroy(target);
-//                GetComponent<Renderer>().material.color = Color.red;
-                gameObject.GetComponent<ElementParameters>().IncrementElementLevel();
-                transform.localScale *= 1.2f;
-            }
-        }
+        Destroy(gameObject);
+        targetScript.IncrementElementLevel();
+        //target.transform.localScale *= 1.2f;
+        ParticleSystem targetParticle = target.GetComponent<ParticleSystem>();
+        ParticleSystem.MainModule targetParticleMain = targetParticle.main;
+        //ParticleSystem.EmissionModule targetParticleEmission = targetParticle.emission;
+        targetParticleEmission.rateOverTime = 2.0f * targetParticleEmission.rateOverTime.constant;
         targetScript.hit();
         selfScript.hit();
+        return;
     }
+
 }
