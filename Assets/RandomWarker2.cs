@@ -94,7 +94,6 @@ public class RandomWarker2 : MonoBehaviour
         {
             Destroy(target);
             gameObject.GetComponent<ElementParameters>().IncrementElementLevel();
-            //transform.localScale *= 1.2f;
             particleEmission.rateOverTime = 2.0f * particleEmission.rateOverTime.constant;
             targetScript.hit();
             selfScript.hit();
@@ -102,10 +101,9 @@ public class RandomWarker2 : MonoBehaviour
         }
         Destroy(gameObject);
         targetScript.IncrementElementLevel();
-        //target.transform.localScale *= 1.2f;
         ParticleSystem targetParticle = target.GetComponent<ParticleSystem>();
-        ParticleSystem.MainModule targetParticleMain = targetParticle.main;
-        //ParticleSystem.EmissionModule targetParticleEmission = targetParticle.emission;
+        //ParticleSystem.MainModule targetParticleMain = targetParticle.main;
+        ParticleSystem.EmissionModule targetParticleEmission = targetParticle.emission;
         targetParticleEmission.rateOverTime = 2.0f * targetParticleEmission.rateOverTime.constant;
         targetScript.hit();
         selfScript.hit();
